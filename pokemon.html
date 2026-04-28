@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ポケモンの草むら</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Roboto+Mono:wght@300;400&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,7 +14,6 @@
       --sky-bot: #c9e8f7;
       --grass-dark: #3a8c3f;
       --grass-light: #5cb85c;
-      --ground: #8B6914;
     }
 
     body {
@@ -33,7 +32,6 @@
       z-index: 0;
     }
 
-    /* Clouds */
     .cloud {
       position: absolute;
       background: white;
@@ -41,144 +39,137 @@
       opacity: 0.8;
       animation: drift linear infinite;
     }
-    .cloud::before, .cloud::after {
-      content: '';
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-    }
+    .cloud::before, .cloud::after { content: ''; position: absolute; background: white; border-radius: 50%; }
     @keyframes drift { from { transform: translateX(-200px); } to { transform: translateX(110vw); } }
 
     /* ── Ground ── */
-    #ground {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 38vh;
-      z-index: 1;
-    }
-
+    #ground { position: fixed; bottom: 0; left: 0; right: 0; height: 38vh; z-index: 1; }
     #grass-back {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 60%;
+      position: absolute; top: 0; left: 0; right: 0; height: 60%;
       background: var(--grass-dark);
       border-radius: 60% 60% 0 0 / 20px 20px 0 0;
     }
+    #grass-front { position: absolute; bottom: 0; left: 0; right: 0; height: 55%; background: var(--grass-light); }
 
-    #grass-front {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 55%;
-      background: var(--grass-light);
-    }
-
-    /* Grass blades */
     .blade {
-      position: absolute;
-      bottom: 100%;
-      width: 6px;
+      position: absolute; bottom: 100%; width: 6px;
       background: var(--grass-light);
       border-radius: 3px 3px 0 0;
       transform-origin: bottom center;
       animation: sway 2s ease-in-out infinite alternate;
     }
-    @keyframes sway {
-      from { transform: rotate(-8deg); }
-      to   { transform: rotate(8deg); }
-    }
+    @keyframes sway { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
 
-    /* ── Field (pokemon zone) ── */
-    #field {
-      position: fixed;
-      bottom: 22vh;
-      left: 0; right: 0;
-      height: 45vh;
-      z-index: 2;
-      pointer-events: none;
-    }
+    /* ── Field ── */
+    #field { position: fixed; bottom: 22vh; left: 0; right: 0; height: 45vh; z-index: 2; pointer-events: none; }
 
-    /* ── HUD ── */
+    /* ── HUD (top center) ── */
     #hud {
-      position: fixed;
-      top: 16px; left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      display: flex;
-      gap: 12px;
-      align-items: center;
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 10; display: flex; gap: 12px; align-items: center;
     }
-
     .hud-chip {
-      background: rgba(0,0,0,0.55);
-      color: #fff;
-      border-radius: 99px;
-      padding: 6px 16px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      background: rgba(0,0,0,0.55); color: #fff; border-radius: 99px;
+      padding: 6px 16px; font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.05em; backdrop-filter: blur(6px);
+      display: flex; align-items: center; gap: 6px;
+    }
+    #counter { color: #ffd700; }
+    #field-timer { color: #7fffb0; }
+
+    /* ── Stopwatch panel (bottom-right) ── */
+    #sw-panel {
+      position: fixed;
+      bottom: 20px; right: 20px;
+      z-index: 10;
+      background: rgba(10,10,20,0.82);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 14px 18px 12px;
+      backdrop-filter: blur(10px);
+      min-width: 200px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
 
-    #counter { color: #ffd700; }
-    #timer-val { color: #7fffb0; }
+    #sw-display {
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 300;
+      font-size: 2.2rem;
+      color: #fff;
+      text-align: center;
+      letter-spacing: 0.03em;
+      margin-bottom: 10px;
+    }
+    #sw-display .sw-cs { font-size: 1.4rem; color: #aaa; }
 
-    /* ── Pokemon sprite ── */
+    #sw-buttons { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
+
+    .sw-btn {
+      border: none; border-radius: 99px;
+      padding: 6px 14px;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.05em;
+    }
+    .sw-btn:active { transform: scale(0.93); }
+    .sw-btn:disabled { opacity: 0.3; cursor: default; }
+    #sw-start { background: #4ade80; color: #000; }
+    #sw-start.running { background: #f87171; }
+    #sw-lap   { background: #60a5fa; color: #000; }
+    #sw-reset { background: #555; color: #fff; }
+
+    #sw-status {
+      text-align: center; font-size: 0.6rem; color: #666;
+      letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px;
+    }
+
+    #sw-laps {
+      max-height: 110px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: #333 transparent;
+    }
+    .sw-lap-row {
+      display: flex; justify-content: space-between;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.7rem; color: #ccc;
+      padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+      animation: lapSlide 0.2s ease;
+    }
+    @keyframes lapSlide { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform:none; } }
+    .sw-lap-row .sw-lap-label { color: #666; }
+    .sw-lap-row.lap-best  .sw-lap-time { color: #4ade80; }
+    .sw-lap-row.lap-worst .sw-lap-time { color: #f87171; }
+
+    /* ── Pokemon ── */
     .pokemon {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      pointer-events: all;
+      position: absolute; display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; pointer-events: all;
       animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
       transform-origin: bottom center;
     }
-
     @keyframes popIn {
       from { transform: scale(0) translateY(40px); opacity: 0; }
-      to   { transform: scale(1) translateY(0);    opacity: 1; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
     }
-
     .pokemon img {
-      width: var(--size, 80px);
-      height: var(--size, 80px);
+      width: var(--size, 80px); height: var(--size, 80px);
       object-fit: contain;
       filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-      transition: transform 0.15s;
-      image-rendering: auto;
+      transition: transform 0.15s; image-rendering: auto;
       animation: bounce 1.8s ease-in-out infinite;
     }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-6px); }
-    }
-
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
     .pokemon:hover img { transform: scale(1.15) translateY(-4px); }
 
     .pokemon-name {
-      background: rgba(0,0,0,0.6);
-      color: #fff;
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 99px;
-      margin-top: 2px;
-      white-space: nowrap;
-      letter-spacing: 0.04em;
+      background: rgba(0,0,0,0.6); color: #fff;
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 99px;
+      margin-top: 2px; white-space: nowrap; letter-spacing: 0.04em;
     }
+    .shiny-badge { position: absolute; top: -4px; right: -4px; font-size: 0.75rem; }
 
-    /* Shiny sparkle */
-    .shiny-badge {
-      position: absolute;
-      top: -4px; right: -4px;
-      font-size: 0.75rem;
-    }
-
-    /* ── Legendary glow ── */
+    /* ── Legendary ── */
     .legendary img {
       animation: bounce 1.8s ease-in-out infinite, legendaryGlow 1.5s ease-in-out infinite alternate !important;
     }
@@ -186,129 +177,100 @@
       from { filter: drop-shadow(0 0 8px gold) drop-shadow(0 0 18px #ff8800); }
       to   { filter: drop-shadow(0 0 16px #fff) drop-shadow(0 0 30px gold); }
     }
+    .legendary .pokemon-name { background: linear-gradient(90deg, #b8860b, #ffd700, #b8860b); color: #fff; }
 
-    .legendary .pokemon-name {
-      background: linear-gradient(90deg, #b8860b, #ffd700, #b8860b);
-      color: #fff;
-    }
-
-    /* ── Sparkle particles ── */
     .sparkle {
-      position: absolute;
-      pointer-events: none;
-      font-size: 0.9rem;
-      line-height: 1;
-      transform-origin: center;
+      position: absolute; pointer-events: none;
+      font-size: 0.9rem; line-height: 1; transform-origin: center;
       animation: sparkleFly var(--dur) ease-out var(--delay) both;
     }
     @keyframes sparkleFly {
-      0%   { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      0%   { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
       100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0); opacity: 0; }
     }
 
-    /* ── Legendary announce ── */
-    .announce-legendary {
-      background: linear-gradient(90deg, #6b0000, #c8a000, #6b0000);
-      font-size: 1.05rem;
-      padding: 10px 28px;
-      box-shadow: 0 0 24px rgba(255,215,0,0.7);
-      border: 1px solid gold;
-    }
-
     /* ── Type colors ── */
-    .type-normal   { background: #9da0aa; }
-    .type-fire     { background: #e8553d; }
-    .type-water    { background: #5090d6; }
-    .type-electric { background: #f4d23c; color: #333; }
-    .type-grass    { background: #5dbe62; }
-    .type-ice      { background: #73cec0; }
-    .type-fighting { background: #ce416b; }
-    .type-poison   { background: #ab6ac8; }
-    .type-ground   { background: #d97845; }
-    .type-flying   { background: #8fa8dd; }
-    .type-psychic  { background: #e0507a; }
-    .type-bug      { background: #91c12f; }
-    .type-rock     { background: #c5b78c; }
-    .type-ghost    { background: #5269ac; }
-    .type-dragon   { background: #0b6dc3; }
-    .type-dark     { background: #595761; }
-    .type-steel    { background: #5a8ea2; }
-    .type-fairy    { background: #ec8fe6; }
+    .type-normal{background:#9da0aa}.type-fire{background:#e8553d}.type-water{background:#5090d6}
+    .type-electric{background:#f4d23c;color:#333}.type-grass{background:#5dbe62}.type-ice{background:#73cec0}
+    .type-fighting{background:#ce416b}.type-poison{background:#ab6ac8}.type-ground{background:#d97845}
+    .type-flying{background:#8fa8dd}.type-psychic{background:#e0507a}.type-bug{background:#91c12f}
+    .type-rock{background:#c5b78c}.type-ghost{background:#5269ac}.type-dragon{background:#0b6dc3}
+    .type-dark{background:#595761}.type-steel{background:#5a8ea2}.type-fairy{background:#ec8fe6}
 
     /* ── Detail card ── */
     #card {
-      position: fixed;
-      z-index: 20;
-      background: rgba(255,255,255,0.95);
-      border-radius: 20px;
-      padding: 20px 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      min-width: 220px;
-      max-width: 260px;
-      backdrop-filter: blur(10px);
-      display: none;
-      pointer-events: none;
+      position: fixed; z-index: 20;
+      background: rgba(255,255,255,0.95); border-radius: 20px;
+      padding: 20px 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      min-width: 220px; max-width: 260px;
+      backdrop-filter: blur(10px); display: none; pointer-events: none;
     }
-
     #card.visible { display: block; animation: cardIn 0.2s ease; }
-    @keyframes cardIn { from { opacity:0; transform: scale(0.9) translateY(8px); } to { opacity:1; transform: none; } }
-
+    @keyframes cardIn { from { opacity:0; transform: scale(0.9) translateY(8px); } to { opacity:1; transform:none; } }
     #card-img { width: 100px; height: 100px; object-fit: contain; display: block; margin: 0 auto 8px; }
-    #card-name { text-align: center; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: #222; text-transform: capitalize; }
+    #card-name { text-align: center; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: #222; }
     #card-no   { text-align: center; font-size: 0.75rem; color: #888; margin-bottom: 10px; }
     #card-types { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
     .type-pill { padding: 3px 12px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; }
     #card-stats { display: grid; gap: 4px; }
     .stat-row { display: flex; align-items: center; gap: 8px; font-size: 0.72rem; }
-    .stat-label { color: #888; width: 80px; flex-shrink: 0; text-transform: capitalize; }
+    .stat-label { color: #888; width: 80px; flex-shrink: 0; }
     .stat-bar-bg { flex: 1; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
     .stat-bar { height: 100%; border-radius: 3px; background: #5cb85c; transition: width 0.6s; }
     .stat-val { color: #333; font-weight: 700; width: 28px; text-align: right; flex-shrink: 0; }
 
     /* ── Announce ── */
     #announce {
-      position: fixed;
-      bottom: 42vh;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 15;
-      pointer-events: none;
+      position: fixed; bottom: 42vh; left: 50%; transform: translateX(-50%);
+      z-index: 15; pointer-events: none;
     }
-
     .announce-msg {
-      background: rgba(0,0,0,0.75);
-      color: #fff;
-      padding: 8px 20px;
-      border-radius: 99px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      white-space: nowrap;
+      background: rgba(0,0,0,0.75); color: #fff;
+      padding: 8px 20px; border-radius: 99px;
+      font-size: 0.9rem; font-weight: 700; white-space: nowrap;
       animation: announceAnim 2.5s ease forwards;
     }
-
+    .announce-legendary {
+      background: linear-gradient(90deg, #6b0000, #c8a000, #6b0000);
+      font-size: 1.05rem; padding: 10px 28px;
+      box-shadow: 0 0 24px rgba(255,215,0,0.7); border: 1px solid gold;
+    }
     @keyframes announceAnim {
-      0%   { opacity: 0; transform: translateY(10px); }
-      15%  { opacity: 1; transform: translateY(0); }
-      70%  { opacity: 1; }
-      100% { opacity: 0; transform: translateY(-10px); }
+      0%   { opacity:0; transform: translateY(10px); }
+      15%  { opacity:1; transform: translateY(0); }
+      70%  { opacity:1; }
+      100% { opacity:0; transform: translateY(-10px); }
     }
   </style>
 </head>
 <body>
 
 <div id="sky"></div>
-<div id="ground">
-  <div id="grass-back"></div>
-  <div id="grass-front"></div>
-</div>
+<div id="ground"><div id="grass-back"></div><div id="grass-front"></div></div>
 <div id="field"></div>
 <div id="announce"></div>
 
+<!-- HUD -->
 <div id="hud">
-  <div class="hud-chip">⏱ <span id="timer-val">0:00</span></div>
+  <div class="hud-chip">🌿 <span id="field-timer">0:00</span></div>
   <div class="hud-chip">🔴 <span id="counter">0</span> ひき</div>
 </div>
 
+<!-- Stopwatch -->
+<div id="sw-panel">
+  <div id="sw-display">
+    <span id="sw-mm">00</span>:<span id="sw-ss">00</span>.<span id="sw-cs" class="sw-cs">00</span>
+  </div>
+  <div id="sw-status">ready</div>
+  <div id="sw-buttons">
+    <button class="sw-btn" id="sw-lap" disabled>LAP</button>
+    <button class="sw-btn" id="sw-start">START</button>
+    <button class="sw-btn" id="sw-reset" disabled>RESET</button>
+  </div>
+  <div id="sw-laps"></div>
+</div>
+
+<!-- Pokemon detail card -->
 <div id="card">
   <img id="card-img" src="" alt="">
   <div id="card-name"></div>
@@ -318,69 +280,130 @@
 </div>
 
 <script>
-  const MAX_POKEMON = 898;
-  const SPAWN_INTERVAL = 4000;   // ms between spawns
-  const MAX_ON_FIELD = 25;
+  // ── Constants ──
+  const MAX_POKEMON   = 493;   // Gen1–4 (D/P)
+  const SPAWN_INTERVAL = 8000; // 8秒固定
+  const MAX_ON_FIELD  = 10;
 
-  const field = document.getElementById('field');
-  const counterEl = document.getElementById('counter');
-  const timerEl = document.getElementById('timer-val');
-  const card = document.getElementById('card');
-  const announce = document.getElementById('announce');
+  // ── DOM ──
+  const field      = document.getElementById('field');
+  const counterEl  = document.getElementById('counter');
+  const fieldTimer = document.getElementById('field-timer');
+  const card       = document.getElementById('card');
+  const announce   = document.getElementById('announce');
 
-  let total = 0;
-  let startTime = Date.now();
-  let spawnCount = 0;
+  // ──────────────────────────────
+  // STOPWATCH
+  // ──────────────────────────────
+  let swElapsed = 0, swStart = 0, swTimer = null, swRunning = false;
+  let swLaps = [], swLastLap = 0;
 
-  // ── Clouds ──
+  const swMm    = document.getElementById('sw-mm');
+  const swSs    = document.getElementById('sw-ss');
+  const swCs    = document.getElementById('sw-cs');
+  const swStatus = document.getElementById('sw-status');
+  const swLapsEl = document.getElementById('sw-laps');
+  const btnStart = document.getElementById('sw-start');
+  const btnLap   = document.getElementById('sw-lap');
+  const btnReset = document.getElementById('sw-reset');
+
+  function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+  function swFormat(ms) {
+    const t = Math.floor(ms / 10);
+    return { mm: pad(Math.floor(t / 6000)), ss: pad(Math.floor(t / 100) % 60), cs: pad(t % 100) };
+  }
+
+  function swFull(ms) {
+    const { mm, ss, cs } = swFormat(ms);
+    return `${mm}:${ss}.${cs}`;
+  }
+
+  function swUpdateDisplay(ms) {
+    const { mm, ss, cs } = swFormat(ms);
+    swMm.textContent = mm; swSs.textContent = ss; swCs.textContent = cs;
+  }
+
+  function swRenderLaps() {
+    swLapsEl.innerHTML = '';
+    if (!swLaps.length) return;
+    const min = Math.min(...swLaps), max = Math.max(...swLaps);
+    [...swLaps].reverse().forEach((t, i) => {
+      const n = swLaps.length - i;
+      const row = document.createElement('div');
+      row.className = 'sw-lap-row' + (swLaps.length > 1 && t === min ? ' lap-best' : swLaps.length > 1 && t === max ? ' lap-worst' : '');
+      row.innerHTML = `<span class="sw-lap-label">Lap ${pad(n)}</span><span class="sw-lap-time">${swFull(t)}</span>`;
+      swLapsEl.appendChild(row);
+    });
+  }
+
+  btnStart.addEventListener('click', () => {
+    if (!swRunning) {
+      swStart = Date.now() - swElapsed;
+      swTimer = setInterval(() => { swElapsed = Date.now() - swStart; swUpdateDisplay(swElapsed); }, 10);
+      swRunning = true;
+      btnStart.textContent = 'STOP'; btnStart.classList.add('running');
+      btnLap.disabled = false; btnReset.disabled = true;
+      swStatus.textContent = 'running'; swStatus.style.color = '#4ade80';
+    } else {
+      clearInterval(swTimer); swRunning = false;
+      btnStart.textContent = 'START'; btnStart.classList.remove('running');
+      btnLap.disabled = true; btnReset.disabled = false;
+      swStatus.textContent = 'paused'; swStatus.style.color = '#f87171';
+    }
+  });
+
+  btnLap.addEventListener('click', () => {
+    const split = swElapsed - swLastLap;
+    swLastLap = swElapsed;
+    swLaps.push(split);
+    swRenderLaps();
+  });
+
+  btnReset.addEventListener('click', () => {
+    swElapsed = 0; swLastLap = 0; swLaps = [];
+    swUpdateDisplay(0); swRenderLaps();
+    btnReset.disabled = true; btnLap.disabled = true;
+    swStatus.textContent = 'ready'; swStatus.style.color = '#666';
+  });
+
+  // ──────────────────────────────
+  // FIELD TIMER (経過時間表示)
+  // ──────────────────────────────
+  const fieldStart = Date.now();
+  setInterval(() => {
+    const s = Math.floor((Date.now() - fieldStart) / 1000);
+    fieldTimer.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2,'0')}`;
+  }, 500);
+
+  // ──────────────────────────────
+  // SCENE
+  // ──────────────────────────────
   function makeClouds() {
     const sky = document.getElementById('sky');
     for (let i = 0; i < 5; i++) {
       const c = document.createElement('div');
       c.className = 'cloud';
-      const w = 80 + Math.random() * 100;
-      const h = w * 0.4;
-      c.style.cssText = `
-        width:${w}px; height:${h}px;
-        top:${5 + Math.random() * 25}%;
-        left:${Math.random() * 100}%;
-        animation-duration:${30 + Math.random() * 40}s;
-        animation-delay:-${Math.random() * 40}s;
-      `;
-      c.style.setProperty('--bw', w * 0.5 + 'px');
+      const w = 80 + Math.random() * 100, h = w * 0.4;
+      c.style.cssText = `width:${w}px;height:${h}px;top:${5+Math.random()*25}%;left:${Math.random()*100}%;animation-duration:${30+Math.random()*40}s;animation-delay:-${Math.random()*40}s;`;
       sky.appendChild(c);
     }
   }
 
-  // ── Grass blades ──
   function makeGrass() {
     const front = document.getElementById('grass-front');
     for (let i = 0; i < 80; i++) {
       const b = document.createElement('div');
       b.className = 'blade';
       const h = 12 + Math.random() * 20;
-      b.style.cssText = `
-        left:${Math.random() * 100}%;
-        height:${h}px;
-        animation-duration:${1.5 + Math.random()}s;
-        animation-delay:-${Math.random() * 2}s;
-        opacity:${0.6 + Math.random() * 0.4};
-      `;
+      b.style.cssText = `left:${Math.random()*100}%;height:${h}px;animation-duration:${1.5+Math.random()}s;animation-delay:-${Math.random()*2}s;opacity:${0.6+Math.random()*0.4};`;
       front.appendChild(b);
     }
   }
 
-  // ── Timer ──
-  function formatTime(ms) {
-    const s = Math.floor(ms / 1000);
-    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  }
-
-  setInterval(() => {
-    timerEl.textContent = formatTime(Date.now() - startTime);
-  }, 500);
-
-  // ── Announce ──
+  // ──────────────────────────────
+  // ANNOUNCE
+  // ──────────────────────────────
   function showAnnounce(text, legendary = false) {
     const div = document.createElement('div');
     div.className = 'announce-msg' + (legendary ? ' announce-legendary' : '');
@@ -389,9 +412,11 @@
     setTimeout(() => div.remove(), legendary ? 3200 : 2600);
   }
 
-  // ── Sparkles ──
+  // ──────────────────────────────
+  // SPARKLES
+  // ──────────────────────────────
   function spawnSparkles(el) {
-    const symbols = ['★', '✦', '✸', '◆', '✺'];
+    const symbols = ['★','✦','✸','◆','✺'];
     for (let i = 0; i < 12; i++) {
       const s = document.createElement('div');
       s.className = 'sparkle';
@@ -399,37 +424,33 @@
       const dist  = 40 + Math.random() * 45;
       const rad   = angle * Math.PI / 180;
       s.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-      s.style.cssText = `
-        left: 50%; top: 40%;
-        color: hsl(${40 + Math.random() * 40}, 100%, 65%);
-        --tx: ${Math.cos(rad) * dist}px;
-        --ty: ${Math.sin(rad) * dist}px;
-        --dur: ${0.7 + Math.random() * 0.6}s;
-        --delay: ${Math.random() * 0.25}s;
-      `;
+      s.style.cssText = `left:50%;top:40%;color:hsl(${40+Math.random()*40},100%,65%);--tx:${Math.cos(rad)*dist}px;--ty:${Math.sin(rad)*dist}px;--dur:${0.7+Math.random()*0.6}s;--delay:${Math.random()*0.25}s;`;
       el.appendChild(s);
       setTimeout(() => s.remove(), 1600);
     }
   }
 
-  // ── Type colors ──
+  // ──────────────────────────────
+  // TYPE COLORS
+  // ──────────────────────────────
   const typeColors = {
-    normal:'#9da0aa', fire:'#e8553d', water:'#5090d6', electric:'#f4d23c',
-    grass:'#5dbe62', ice:'#73cec0', fighting:'#ce416b', poison:'#ab6ac8',
-    ground:'#d97845', flying:'#8fa8dd', psychic:'#e0507a', bug:'#91c12f',
-    rock:'#c5b78c', ghost:'#5269ac', dragon:'#0b6dc3', dark:'#595761',
-    steel:'#5a8ea2', fairy:'#ec8fe6',
+    normal:'#9da0aa',fire:'#e8553d',water:'#5090d6',electric:'#f4d23c',
+    grass:'#5dbe62',ice:'#73cec0',fighting:'#ce416b',poison:'#ab6ac8',
+    ground:'#d97845',flying:'#8fa8dd',psychic:'#e0507a',bug:'#91c12f',
+    rock:'#c5b78c',ghost:'#5269ac',dragon:'#0b6dc3',dark:'#595761',
+    steel:'#5a8ea2',fairy:'#ec8fe6',
   };
 
-  // ── Fetch & spawn ──
+  // ──────────────────────────────
+  // POKEMON SPAWN
+  // ──────────────────────────────
   const seen = new Set();
+  let totalCount = 0;
 
   async function spawnPokemon() {
-    // Clean up if too many
+    // 10体超えたら最古を削除
     const existing = field.querySelectorAll('.pokemon');
-    if (existing.length >= MAX_ON_FIELD) {
-      existing[0].remove();
-    }
+    if (existing.length >= MAX_ON_FIELD) existing[0].remove();
 
     let id;
     do { id = 1 + Math.floor(Math.random() * MAX_POKEMON); } while (seen.has(id) && seen.size < MAX_POKEMON);
@@ -437,13 +458,13 @@
 
     let data, speciesData;
     try {
-      const [pokeRes, speciesRes] = await Promise.all([
+      const [pr, sr] = await Promise.all([
         fetch(`https://pokeapi.co/api/v2/pokemon/${id}`),
         fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`),
       ]);
-      if (!pokeRes.ok) return;
-      data = await pokeRes.json();
-      speciesData = speciesRes.ok ? await speciesRes.json() : null;
+      if (!pr.ok) return;
+      data = await pr.json();
+      speciesData = sr.ok ? await sr.json() : null;
     } catch { return; }
 
     const isShiny = Math.random() < 0.05;
@@ -452,37 +473,25 @@
       : data.sprites.other['official-artwork'].front_default;
     if (!imgUrl) return;
 
-    const jaEntry = speciesData?.names?.find(n => n.language.name === 'ja');
-    const jaName = jaEntry?.name ?? data.name;
+    const jaEntry   = speciesData?.names?.find(n => n.language.name === 'ja');
+    const jaName    = jaEntry?.name ?? data.name;
     const isLegendary = speciesData?.is_legendary || speciesData?.is_mythical || false;
-    const types = data.types.map(t => t.type.name);
 
-    // Depth layers: y position → size + z-index
-    const yPct = 20 + Math.random() * 65;  // % from top of field
+    const yPct  = 20 + Math.random() * 65;
     const depth = yPct / 100;
-    const size = Math.round(55 + depth * 55);
+    const size  = Math.round(55 + depth * 55);
 
     const el = document.createElement('div');
-    el.className = 'pokemon';
-    el.style.cssText = `
-      left: ${5 + Math.random() * 88}%;
-      top: ${yPct}%;
-      z-index: ${Math.round(depth * 100)};
-      --size: ${size}px;
-      animation-delay: 0s;
-    `;
+    el.className = 'pokemon' + (isLegendary ? ' legendary' : '');
+    el.style.cssText = `left:${5+Math.random()*88}%;top:${yPct}%;z-index:${Math.round(depth*100)};--size:${size}px;`;
 
     const img = document.createElement('img');
-    img.src = imgUrl;
-    img.alt = name;
-    img.draggable = false;
+    img.src = imgUrl; img.alt = jaName; img.draggable = false;
     img.style.animationDelay = `${Math.random() * 1.5}s`;
 
     const nameEl = document.createElement('div');
     nameEl.className = 'pokemon-name';
     nameEl.textContent = jaName;
-
-    if (isLegendary) el.classList.add('legendary');
 
     el.appendChild(img);
     el.appendChild(nameEl);
@@ -494,7 +503,6 @@
       el.appendChild(badge);
     }
 
-    // Click → card
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       showCard(data, imgUrl, isShiny, isLegendary, jaName, e.clientX, e.clientY);
@@ -502,33 +510,25 @@
 
     field.appendChild(el);
 
-    // Sparkles for legendary (repeat every 3s while on field)
     if (isLegendary) {
       spawnSparkles(el);
-      const sparkleTimer = setInterval(() => {
-        if (!el.isConnected) { clearInterval(sparkleTimer); return; }
-        spawnSparkles(el);
-      }, 3000);
+      const t = setInterval(() => { if (!el.isConnected) { clearInterval(t); return; } spawnSparkles(el); }, 3000);
     }
 
-    total++;
-    counterEl.textContent = total;
-    spawnCount++;
+    totalCount++;
+    counterEl.textContent = totalCount;
 
-    if (isLegendary) {
-      showAnnounce(`⚡ 伝説のポケモン ${jaName} が現れた！`, true);
-    } else {
-      showAnnounce(isShiny ? `✨ 光るポケモン ${jaName} が現れた！` : `野生の ${jaName} が現れた！`, false);
-    }
+    if (isLegendary) showAnnounce(`⚡ 伝説のポケモン ${jaName} が現れた！`, true);
+    else showAnnounce(isShiny ? `✨ 光るポケモン ${jaName} が現れた！` : `野生の ${jaName} が現れた！`);
   }
 
-  // ── Card ──
+  // ──────────────────────────────
+  // DETAIL CARD
+  // ──────────────────────────────
   function showCard(data, imgUrl, isShiny, isLegendary, jaName, cx, cy) {
     const types = data.types.map(t => t.type.name);
-    const stats = data.stats;
-
     document.getElementById('card-img').src = imgUrl;
-    document.getElementById('card-name').textContent = (isShiny ? '✨ ' : '') + jaName;
+    document.getElementById('card-name').textContent = (isShiny ? '✨ ' : '') + (isLegendary ? '⚡ ' : '') + jaName;
     document.getElementById('card-no').textContent = `No.${String(data.id).padStart(3,'0')}`;
 
     const typesEl = document.getElementById('card-types');
@@ -545,26 +545,19 @@
     const statsEl = document.getElementById('card-stats');
     statsEl.innerHTML = '';
     const statNames = { hp:'HP', attack:'こうげき', defense:'ぼうぎょ', 'special-attack':'とくこう', 'special-defense':'とくぼう', speed:'すばやさ' };
-    stats.forEach(s => {
-      const label = statNames[s.stat.name] || s.stat.name;
+    data.stats.forEach(s => {
       const val = s.base_stat;
       const pct = Math.min(100, (val / 255) * 100);
       const color = val >= 100 ? '#e8553d' : val >= 70 ? '#f4d23c' : '#5cb85c';
       const row = document.createElement('div');
       row.className = 'stat-row';
-      row.innerHTML = `
-        <span class="stat-label">${label}</span>
-        <div class="stat-bar-bg"><div class="stat-bar" style="width:${pct}%;background:${color}"></div></div>
-        <span class="stat-val">${val}</span>
-      `;
+      row.innerHTML = `<span class="stat-label">${statNames[s.stat.name] || s.stat.name}</span><div class="stat-bar-bg"><div class="stat-bar" style="width:${pct}%;background:${color}"></div></div><span class="stat-val">${val}</span>`;
       statsEl.appendChild(row);
     });
 
-    // Position card near click, keep in viewport
     card.className = 'visible';
     const cw = 260, ch = 320;
-    let left = cx + 12;
-    let top  = cy - ch / 2;
+    let left = cx + 12, top = cy - ch / 2;
     if (left + cw > window.innerWidth - 8)  left = cx - cw - 12;
     if (top < 8) top = 8;
     if (top + ch > window.innerHeight - 8)  top = window.innerHeight - ch - 8;
@@ -574,21 +567,17 @@
 
   document.addEventListener('click', () => { card.className = ''; });
 
-  // ── Spawn schedule: intervals get shorter over time ──
+  // ──────────────────────────────
+  // SPAWN LOOP (8秒固定)
+  // ──────────────────────────────
   function scheduleNext() {
-    const elapsed = Date.now() - startTime;
-    // Starts at 4s, decreases to 1.5s over first 3 minutes
-    const interval = Math.max(1500, SPAWN_INTERVAL - (elapsed / 180000) * 2500);
-    setTimeout(async () => {
-      await spawnPokemon();
-      scheduleNext();
-    }, interval);
+    setTimeout(async () => { await spawnPokemon(); scheduleNext(); }, SPAWN_INTERVAL);
   }
 
   // ── Init ──
   makeClouds();
   makeGrass();
-  spawnPokemon(); // first one immediately
+  spawnPokemon();
   scheduleNext();
 </script>
 </body>
