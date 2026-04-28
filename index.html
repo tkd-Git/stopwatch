@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ストップウォッチ</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      letter-spacing: 0.2em;
+      color: #888;
+      margin-bottom: 40px;
+      text-transform: uppercase;
+    }
+
+    #display {
+      font-size: 5rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 200;
+      letter-spacing: 0.05em;
+      color: #fff;
+      margin-bottom: 48px;
+    }
+
+    #display .ms {
+      font-size: 3rem;
+      color: #aaa;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    button {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px solid;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.05em;
+    }
+
+    button:active { transform: scale(0.95); }
+
+    #btn-start {
+      background: #16213e;
+      border-color: #4ade80;
+      color: #4ade80;
+    }
+
+    #btn-start.running {
+      border-color: #f87171;
+      color: #f87171;
+    }
+
+    #btn-lap {
+      background: #16213e;
+      border-color: #60a5fa;
+      color: #60a5fa;
+    }
+
+    #btn-reset {
+      background: #16213e;
+      border-color: #888;
+      color: #888;
+    }
+
+    button:disabled { opacity: 0.3; cursor: default; }
+
+    #laps {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    #laps h2 {
+      font-size: 0.8rem;
+      color: #666;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    #lap-list {
+      list-style: none;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    #lap-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #333;
+      font-size: 1rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #lap-list li span.label { color: #888; }
+    #lap-list li.best span.time { color: #4ade80; }
+    #lap-list li.worst span.time { color: #f87171; }
+  </style>
+</head>
+<body>
+  <h1>ストップウォッチ</h1>
+
+  <div id="display">
+    <span id="mm">00</span>:<span id="ss">00</span>.<span id="ms" class="ms">00</span>
+  </div>
+
+  <div class="buttons">
+    <button id="btn-lap" disabled>LAP</button>
+    <button id="btn-start">START</button>
+    <button id="btn-reset" disabled>RESET</button>
+  </div>
+
+  <div id="laps">
+    <h2 id="lap-heading" style="display:none">ラップタイム</h2>
+    <ul id="lap-list"></ul>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsed = 0;
+    let timer = null;
+    let running = false;
+    let lapStart = 0;
+    let laps = [];
+
+    const mmEl = document.getElementById('mm');
+    const ssEl = document.getElementById('ss');
+    const msEl = document.getElementById('ms');
+    const btnStart = document.getElementById('btn-start');
+    const btnLap = document.getElementById('btn-lap');
+    const btnReset = document.getElementById('btn-reset');
+    const lapList = document.getElementById('lap-list');
+    const lapHeading = document.getElementById('lap-heading');
+
+    function format(ms) {
+      const total = Math.floor(ms / 10);
+      const centis = total % 100;
+      const secs = Math.floor(total / 100) % 60;
+      const mins = Math.floor(total / 6000);
+      return {
+        mm: String(mins).padStart(2, '0'),
+        ss: String(secs).padStart(2, '0'),
+        ms: String(centis).padStart(2, '0'),
+      };
+    }
+
+    function updateDisplay(ms) {
+      const { mm, ss, ms: cs } = format(ms);
+      mmEl.textContent = mm;
+      ssEl.textContent = ss;
+      msEl.textContent = cs;
+    }
+
+    function renderLaps() {
+      if (laps.length === 0) { lapHeading.style.display = 'none'; return; }
+      lapHeading.style.display = '';
+
+      const min = Math.min(...laps);
+      const max = Math.max(...laps);
+
+      lapList.innerHTML = '';
+      [...laps].reverse().forEach((t, i) => {
+        const n = laps.length - i;
+        const { mm, ss, ms } = format(t);
+        const li = document.createElement('li');
+        if (laps.length > 1 && t === min) li.className = 'best';
+        else if (laps.length > 1 && t === max) li.className = 'worst';
+        li.innerHTML = `<span class="label">ラップ ${String(n).padStart(2, '0')}</span><span class="time">${mm}:${ss}.${ms}</span>`;
+        lapList.appendChild(li);
+      });
+    }
+
+    btnStart.addEventListener('click', () => {
+      if (!running) {
+        startTime = Date.now() - elapsed;
+        if (lapStart === 0) lapStart = startTime;
+        timer = setInterval(() => {
+          elapsed = Date.now() - startTime;
+          updateDisplay(elapsed);
+        }, 10);
+        running = true;
+        btnStart.textContent = 'STOP';
+        btnStart.classList.add('running');
+        btnLap.disabled = false;
+        btnReset.disabled = true;
+      } else {
+        clearInterval(timer);
+        running = false;
+        btnStart.textContent = 'START';
+        btnStart.classList.remove('running');
+        btnLap.disabled = true;
+        btnReset.disabled = false;
+      }
+    });
+
+    btnLap.addEventListener('click', () => {
+      const now = Date.now();
+      const lapTime = now - (startTime + lapStart - startTime);
+      // simpler: track lap time relative to last lap
+      const lapElapsed = elapsed - laps.reduce((a, b) => a + b, 0);
+      laps.push(lapElapsed);
+      renderLaps();
+    });
+
+    btnReset.addEventListener('click', () => {
+      elapsed = 0;
+      lapStart = 0;
+      laps = [];
+      updateDisplay(0);
+      renderLaps();
+      btnReset.disabled = true;
+      btnLap.disabled = true;
+    });
+  </script>
+</body>
+</html>
